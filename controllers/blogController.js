@@ -3,7 +3,7 @@ const blogModel = require("../models/blogModel")
 
 exports.getAllBlogsController= async(req,res)=>{
     try{
-        const blogs=await blogModel.find({});
+        const blogs=await blogModel.find({}).populate('user');
         if(!blogs){
             return res.status(200).send({
                 success:false,
