@@ -3,6 +3,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const colors = require("colors");
 const dotenv = require("dotenv");
+const cookieParser = require('cookie-parser');
 const connectDB = require("./config/db");
 
 //env config
@@ -22,6 +23,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(cookieParser("my cookie"));
 app.use(express.urlencoded({ extended: true }));
 
 //routes

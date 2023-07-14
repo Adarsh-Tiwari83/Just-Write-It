@@ -1,5 +1,6 @@
-const { default: mongoose } = require("mongoose");
-const blogModel = require("../models/blogModel")
+const mongoose = require("mongoose");
+const blogModel = require("../models/blogModel");
+const userModel = require("../models/userModel");
 
 exports.getAllBlogsController= async(req,res)=>{
     try{
@@ -34,8 +35,17 @@ exports.createBlogController = async(req,res)=>{
                 message:'provide all fields',
             })
         }
-        const newBlog=new blogModel({title,description,image});
+        const existingUser = await userModel.findById(req.user._id);
+        if(!existingUser){
+            return res.status(400).send({
+                success:false,
+                message:'couldnt find user',
+              })
+        }
+        const newBlog=new blogModel({title,description,image,user:req.user._id});
         await newBlog.save();
+        existingUser.blogs.push(newBlog._id);
+        await existingUser.save();
         res.status(200).send({
             success:true,
             message:'blog created successfully',
@@ -105,3 +115,25 @@ exports.getBlogByIdController = async(req,res)=>{
         })
     }
 }
+exports.userBlogController=async(req,res)=>{
+    try{
+        const userBlog=await userModel.findById(req.params.id).populate('blogs');
+        if(!userBlog){
+            return res.status(404).send({
+                success:false,
+                message:'blog not found with this id',
+              })
+        }
+        return res.status(200).send({
+            success:true,
+            message:'user blogs',
+            userBlog
+          })
+    }catch(error){
+      return res.status(400).send({
+        success:false,
+        message:'error in user blog api',
+        error
+      })
+    }
+  }

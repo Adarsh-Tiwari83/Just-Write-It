@@ -42,10 +42,16 @@ exports.registerController = async (req, res) => {
     //save new user
     const newUser = new userModel({ username, email, password:hashedPassword });
     await newUser.save();
-    return res.status(200).send({
+    const token =newUser.generateToken();
+    const options = {
+      expires: new Date(Date.now() + 90 * 24 * 3600 * 1000),
+      httpOnly: true,
+    };
+
+    return res.status(200).cookie("token", token, options).send({
       success: true,
       message: "registration successful",
-      newUser,
+      newUser,token
     });
   } catch (error) {
     res.status(500).send({
@@ -80,10 +86,15 @@ exports.loginController = async(req,res) => {
             message: "invalid username or password",
           });
     }
-    res.status(200).send({
+    const token =user.generateToken();
+    const options = {
+      expires: new Date(Date.now() + 90 * 24 * 3600 * 1000),
+      httpOnly: true,
+    };
+    res.status(200).cookie("token", token, options).send({
       success: true,
       message: "login successful",
-      user
+      user,token
     });
   } catch (error) {
     res.status(500).send({
