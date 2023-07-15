@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'
+import toast from 'react-hot-toast' 
 
 const Register = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const Register = () => {
     try{
       const {data}=await axios.post('/api/v1/user/register',{username:inputs.name,email:inputs.email,password:inputs.password});
       if(data.success){
-        alert('User Registration Successful');
+        toast.success('User Registration Successful');
         navigate('/login');
       }
     }catch(error){

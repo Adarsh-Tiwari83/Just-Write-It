@@ -1,16 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
 import toast from "react-hot-toast";
-const CreateBlog = () => {
-  const id = localStorage.getItem("userId");
+import { useNavigate, useParams } from "react-router-dom";
+import { Box, Button, InputLabel, TextField, Typography } from "@mui/material";
+const BlogDetails = () => {
+  const [blog, setBlog] = useState({});
+  const id = useParams().id;
   const navigate = useNavigate();
-  const [inputs, setInputs] = useState({
-    title: "",
-    description: "",
-    image: "",
-  });
+  const [inputs, setInputs] = useState({});
+  // get blog details
+  const getBlogDetail = async () => {
+    try {
+      const { data } = await axios.get(`/api/v1/blog/get-blog/${id}`);
+      if (data?.success) {
+        setBlog(data?.blog);
+        setInputs({
+          title: data?.blog.title,
+          description: data?.blog.description,
+          image: data?.blog.image,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getBlogDetail();
+  }, [id]);
+
   // input change
   const handleChange = (e) => {
     setInputs((prevState) => ({
@@ -22,20 +40,20 @@ const CreateBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("/api/v1/blog/create-blog", {
+      const { data } = await axios.put(`/api/v1/blog/update-blog/${id}`, {
         title: inputs.title,
         description: inputs.description,
         image: inputs.image,
-    
       });
       if (data?.success) {
-        toast.success("Blog Created");
+        toast.success("Blog Updated");
         navigate("/my-blogs");
       }
     } catch (error) {
       console.log(error);
     }
   };
+  console.log(blog);
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -57,7 +75,7 @@ const CreateBlog = () => {
             padding={3}
             color="gray"
           >
-            Create A Post
+            Update A Post
           </Typography>
           <InputLabel
             sx={{ mb: 1, mt: 2, fontSize: "24px", fontWeight: "bold" }}
@@ -98,8 +116,8 @@ const CreateBlog = () => {
             variant="outlined"
             required
           />
-          <Button type="submit" color="primary" variant="contained">
-            SUBMIT
+          <Button type="submit" color="warning" variant="contained">
+            UPDATE
           </Button>
         </Box>
       </form>
@@ -107,4 +125,4 @@ const CreateBlog = () => {
   );
 };
 
-export default CreateBlog;
+export default BlogDetails;

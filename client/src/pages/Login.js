@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'
 import {useDispatch} from 'react-redux'
 import { authActions } from "../redux/store";
+import toast from 'react-hot-toast' 
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,8 +31,9 @@ const Login = () => {
       const {data}=await axios.post('/api/v1/user/login',{email:inputs.email,password:inputs.password});
       if(data.success){
         localStorage.setItem('userId',data?.user._id);
+        console.log(localStorage.getItem('userId'));
         dispatch(authActions.login());
-        alert('User Login Successful');
+        toast.success('User Login Successful');
         navigate('/');
       }
     }catch(error){
